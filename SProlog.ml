@@ -179,9 +179,9 @@ and expr() =
   match !tok with
 	  L.ONE '(' -> ( eat(L.ONE '('); expr(); eat(L.ONE ')') )
 	| L.ONE '[' -> ( eat(L.ONE '['); list(); eat(L.ONE ']') )
-	| L.CID c -> ( eat(L.CID "c"); tail_opt() )
-	| L.VID v -> eat(L.VID "v")
-	| L.NUM n -> eat(L.NUM "n")
+	| L.CID c -> ( eat(L.CID ""); tail_opt() )
+	| L.VID v -> eat(L.VID "")
+	| L.NUM n -> eat(L.NUM "")
 	| _ -> error()
 
 and tail_opt() =
@@ -202,9 +202,9 @@ and list_opt() =
 
 and id() =
 	match !tok with
-	  L.CID c -> eat(L.CID "c")
-	| L.VID v -> eat(L.VID "v")
-	| L.NUM n -> eat(L.NUM "n")
+	  L.CID c -> eat(L.CID "")
+	| L.VID v -> eat(L.VID "")
+	| L.NUM n -> eat(L.NUM "")
 	| _ -> error()
 
 end;;
