@@ -117,7 +117,7 @@ command → term "."
 term → "(" term ")"
 term → predicate
 terms → term terms'
-terms' → "," term terms
+terms' → "," term terms'
 terms' → 
 predicate → CID "(" args ")"
 args → expr args'

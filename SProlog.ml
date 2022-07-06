@@ -165,7 +165,7 @@ and terms() = ( term(); terms'() )
 
 and terms'() =
   match !tok with
-    L.ONE ',' -> ( eat(L.ONE ','); term(); terms() )
+    L.ONE ',' -> ( eat(L.ONE ','); term(); terms'() )
   | _ -> ()
 
 and predicate() = ( eat(L.CID ""); eat(L.ONE '('); args(); eat(L.ONE ')') )
