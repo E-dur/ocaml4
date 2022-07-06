@@ -36,7 +36,7 @@ let ch = ref []
 let read () = 
   match !ch with 
     [] -> input_char !_ISTREAM
-  | h :: rest -> ch := rest; h
+  | h :: rest -> ( ch := rest; h )
 
 let unread c = ch := c::!ch
 
@@ -56,7 +56,7 @@ let rec integer i =
 
 and identifier id =
   let c = lookahead () in
-    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == ':' || c == '-') then
+    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_') then
       identifier (id ^ (Char.escaped (read ())))
     else id
 
@@ -76,10 +76,11 @@ and native_token () =
     else if (c >= '0' && c <= '9') then NUM (integer "")
     (* :- を認識して TO を返す *)
     else if c == ':' then 
-      let id = identifier "" in
-        match id with
-          ":-" -> TO
-        | _ -> ONE (read ())
+      let id1 = read() in
+        let id2 = read() in
+          match id2 with
+            '-' -> TO
+          | _ -> ( unread id2; ONE (id1))
     else ONE (read ())
 
 and gettoken () =
@@ -101,20 +102,20 @@ let rec run () =
 
 end;;
 
+
+
+
 module Parser = struct
 
 module L = Lexer
 (* module E = Evaluator *)
+
 let tok = ref (L.ONE ' ')
-
 let getToken () = L.gettoken ()
-
-let advance () = tok := getToken(); L.print_token (!tok)
+let advance () = ( tok := getToken(); L.print_token (!tok) )
 
 exception Syntax_error
-
 let error () = raise Syntax_error
-
 let check t = 
   match !tok with
     L.CID _ -> if (t = (L.CID "")) then () else error()
@@ -203,8 +204,8 @@ and list_opt() =
 
 and id() =
   match !tok with
-    L.CID c -> eat(L.CID "")
-  | L.VID v -> eat(L.VID "")
+    L.CID s -> eat(L.CID "")
+  | L.VID s -> eat(L.VID "")
   | L.NUM n -> eat(L.NUM "")
   | _ -> error()
 
