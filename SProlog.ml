@@ -75,12 +75,11 @@ and native_token () =
     else if ('A' <= c && c <= 'Z') then VID (identifier "")
     else if (c >= '0' && c <= '9') then NUM (integer "")
     (* :- を認識して TO を返す *)
-    else if c == ':' then 
-      let id1 = read() in
-        let id2 = read() in
-          match id2 with
-            '-' -> TO
-          | _ -> ( unread id2; ONE (id1))
+    else if c = ':' then 
+      let _ = (read ()) and second = (lookahead ()) in
+        if second = '-' then 
+          let _ = (read ()) in TO
+        else ONE ':'
     else ONE (read ())
 
 and gettoken () =
@@ -121,7 +120,7 @@ let check t =
     L.CID _ -> if (t = (L.CID "")) then () else error()
   | L.VID _ -> if (t = (L.VID "")) then () else error()
   | L.NUM _ -> if (t = (L.NUM "")) then () else error()
-  | tk -> if (tk = t) then () else error()
+  | tk -> if (tk = t) then () else error() (*ここのerrorでひっかかっている? tにL.TOが入っていない*)
 
 let eat t = (check t; advance())
 
@@ -137,7 +136,7 @@ and clause() =
 
 and to_opt() =
   match !tok with
-    L.TO -> (eat(L.TO); terms())
+    L.TO -> ( eat (L.TO); terms() )
   | _ -> ()
 
 and command() = 
