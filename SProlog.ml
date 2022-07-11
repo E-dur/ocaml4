@@ -162,6 +162,7 @@ and command() =
 and term() =
   match !tok with
     L.ONE '(' -> ( eat(L.ONE '('); term(); eat(L.ONE ')') )
+  | L.VID _ -> ( eat(L.VID); eat(L.IS); arithmexp() )
   | _ -> predicate()
 
 and terms() = ( term(); terms'() )
