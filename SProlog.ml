@@ -11,6 +11,8 @@ type token =
   | EOF 
   | ONE of char
 
+let line_count = ref 1
+
 module P = Printf
 
 let print_token tk =
@@ -88,9 +90,9 @@ and gettoken () =
       match token with
         ONE ' ' -> gettoken ()
       | ONE '\t' -> gettoken ()
-      | ONE '\n' -> gettoken ()
+      | ONE '\n' -> ( line_count := !line_count + 1; gettoken () )
       | _ -> token
-  with End_of_file -> EOF
+  with End_of_file -> ( line_count := 1; EOF )
 
 let rec run () =
   flush stdout;
@@ -140,20 +142,22 @@ and to_opt() =
   | _ -> ()
 
 and command() = 
-  match !tok with
-    L.QUIT -> exit 0
-  | L.OPEN -> 
-    (eat(L.OPEN);
+  try
     match !tok with
-      L.CID s -> 
-        eat(L.CID ""); 
-        check (L.ONE '.');
-        L._ISTREAM := open_in (s^".pl");
-        advance(); 
-        clauses(); 
-        close_in (!L._ISTREAM)
-    | _ -> error())
-  | _ -> ( terms(); check(L.ONE '.') )
+      L.QUIT -> exit 0
+    | L.OPEN -> 
+      (eat(L.OPEN);
+      match !tok with
+        L.CID s -> 
+          eat(L.CID ""); 
+          check (L.ONE '.');
+          L._ISTREAM := open_in (s^".pl");
+          advance(); 
+          clauses(); 
+          close_in (!L._ISTREAM)
+      | _ -> error())
+    | _ -> ( terms(); check(L.ONE '.') )
+  with Syntax_error -> Printf.printf "\nline%d: Syntax error" !L.line_count
 
 and term() =
   match !tok with

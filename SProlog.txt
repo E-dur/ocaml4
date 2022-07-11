@@ -194,3 +194,9 @@ open isono. を実行する
 
 問題5---------------
 command関数のterm部分をtermsとすればよい。
+
+
+問題6----------------
+行番号を記憶する変数line_counterを定義し、改行するごとに1を足す。
+Parserのcommandにおいてtry...with-で例外捕捉をして、
+line_counterの値を出力すればよい。
