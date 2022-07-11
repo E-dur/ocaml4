@@ -153,7 +153,7 @@ and command() =
         clauses(); 
         close_in (!L._ISTREAM)
     | _ -> error())
-  | _ -> ( term(); check(L.ONE '.') )
+  | _ -> ( terms(); check(L.ONE '.') )
 
 and term() =
   match !tok with

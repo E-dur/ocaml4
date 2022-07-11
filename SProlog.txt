@@ -138,3 +138,59 @@ list_opt →
 id → CID
 id → VID
 id → NUM 
+
+問題3-------------------
+and to_opt() =
+  match !tok with
+    L.TO -> ( eat (L.TO); terms() )
+  | _ -> ()
+
+and term() =
+  match !tok with
+    L.ONE '(' -> ( eat(L.ONE '('); term(); eat(L.ONE ')') )
+  | _ -> predicate()
+
+and terms() = ( term(); terms'() )
+
+and terms'() =
+  match !tok with
+    L.ONE ',' -> ( eat(L.ONE ','); term(); terms'() )
+  | _ -> ()
+
+and predicate() = ( eat(L.CID ""); eat(L.ONE '('); args(); eat(L.ONE ')') )
+	
+and args() = ( expr(); args'() )
+
+and args'() = 
+  match !tok with
+    L.ONE ',' -> ( eat(L.ONE ','); expr(); args'() )
+  | _ -> ()
+
+and expr() =
+  match !tok with
+    L.ONE '(' -> ( eat(L.ONE '('); expr(); eat(L.ONE ')') )
+  | L.ONE '[' -> ( eat(L.ONE '['); list(); eat(L.ONE ']') )
+  | L.CID c -> ( eat(L.CID ""); tail_opt() )
+  | L.VID v -> eat(L.VID "")
+  | L.NUM n -> eat(L.NUM "")
+  | _ -> error()
+
+and tail_opt() =
+  match !tok with
+    L.ONE '(' -> ( eat(L.ONE '('); args(); eat(L.ONE ')') )
+  | _ -> ()
+
+and id() =
+  match !tok with
+    L.CID s -> eat(L.CID "")
+  | L.VID s -> eat(L.VID "")
+  | L.NUM n -> eat(L.NUM "")
+  | _ -> error()
+
+
+問題4---------------
+open isono. を実行する
+
+
+問題5---------------
+command関数のterm部分をtermsとすればよい。
