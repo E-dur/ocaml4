@@ -180,14 +180,32 @@ and args'() =
     L.ONE ',' -> ( eat(L.ONE ','); expr(); args'() )
   | _ -> ()
 
-and expr() =
+and expr() = arithmexp()
+
+and arithmexp() = ( arithmterm(); arithmexp'() )
+
+and arithmexp'() =
   match !tok with
-    L.ONE '(' -> ( eat(L.ONE '('); expr(); eat(L.ONE ')') )
-  | L.ONE '[' -> ( eat(L.ONE '['); list(); eat(L.ONE ']') )
-  | L.CID c -> ( eat(L.CID ""); tail_opt() )
-  | L.VID v -> eat(L.VID "")
-  | L.NUM n -> eat(L.NUM "")
-  | _ -> error()
+      L.ONE '+' -> ( eat(L.ONE '+'); arithmterm(); arithmexp'() )
+    | L.ONE '-' -> ( eat(L.ONE '-'); arithmterm(); arithmexp'() ) 
+    | _ -> ()
+
+and arithmterm() = ( arithmfactor(); arithmterm' )
+
+and arithmterm'() = 
+  match !tok with 
+      L.ONE '*' -> ( eat(L.ONE '*'); arithmfactor(); arithmterm'() )
+    | L.ONE '/' -> ( eat(L.ONE '/'); arithmfactor(); arithmterm'() )
+    | _ -> ()
+
+and arithmfactor() = 
+  match !tok with 
+      L.ONE '(' -> ( eat(L.ONE '('); expr(); eat(L.ONE ')') )
+    | L.ONE '[' -> ( eat(L.ONE '['); list(); eat(L.ONE ']') )
+    | L.CID c -> ( eat(L.CID ""); tail_opt() )
+    | L.VID v -> eat(L.VID "")
+    | L.NUM n -> eat(L.NUM "")
+    | _ -> error()
 
 and tail_opt() =
   match !tok with
