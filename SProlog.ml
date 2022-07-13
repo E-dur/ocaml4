@@ -1,8 +1,8 @@
 module Lexer = struct
 
 type token = 
-    CID of string (*先頭が小文字で始まるもの(オブジェクト)*)
-  | VID of string (*先頭が大文字で始まるもの(変数)*)
+    CID of string 
+  | VID of string 
   | NUM of string 
   | TO (*:-*)
   | IS 
@@ -122,7 +122,7 @@ let check t =
     L.CID _ -> if (t = (L.CID "")) then () else error()
   | L.VID _ -> if (t = (L.VID "")) then () else error()
   | L.NUM _ -> if (t = (L.NUM "")) then () else error()
-  | tk -> if (tk = t) then () else error() (*ここのerrorでひっかかっている? tにL.TOが入っていない*)
+  | tk -> if (tk = t) then () else error() 
 
 let eat t = (check t; advance())
 
@@ -146,7 +146,8 @@ and command() =
     match !tok with
       L.QUIT -> exit 0
     | L.OPEN -> 
-      (eat(L.OPEN);
+      (L.line_count := 1;
+      eat(L.OPEN);
       match !tok with
         L.CID s -> 
           eat(L.CID ""); 
@@ -156,13 +157,14 @@ and command() =
           clauses(); 
           close_in (!L._ISTREAM)
       | _ -> error())
-    | _ -> ( terms(); check(L.ONE '.') )
-  with Syntax_error -> Printf.printf "\nline%d: Syntax error" !L.line_count
+    | _ -> ( L.line_count := 1; terms(); check(L.ONE '.') )
+  with Syntax_error -> 
+    Printf.printf "\nline%d - Syntax error" !L.line_count
 
 and term() =
   match !tok with
     L.ONE '(' -> ( eat(L.ONE '('); term(); eat(L.ONE ')') )
-  | L.VID _ -> ( eat(L.VID); eat(L.IS); arithmexp() )
+  | L.VID _ -> ( eat(L.VID ""); eat(L.IS); arithmexp() )
   | _ -> predicate()
 
 and terms() = ( term(); terms'() )
@@ -191,7 +193,7 @@ and arithmexp'() =
     | L.ONE '-' -> ( eat(L.ONE '-'); arithmterm(); arithmexp'() ) 
     | _ -> ()
 
-and arithmterm() = ( arithmfactor(); arithmterm' )
+and arithmterm() = ( arithmfactor(); arithmterm'() )
 
 and arithmterm'() = 
   match !tok with 
